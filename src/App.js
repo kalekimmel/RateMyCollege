@@ -39,6 +39,13 @@ const App = () => {
         setSortOption(event.target.value);
     };
 
+    const addSchool = (newSchool) => {
+        const ratings = newSchool.ratings || [];
+        const averageStars = ratings.length > 0 ? 
+            (ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length).toFixed(1) : 0;
+        setSchools([...schools, { ...newSchool, averageStars: parseFloat(averageStars) }]);
+    };
+
     const filteredSchools = schools.filter(school =>
         school.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -92,7 +99,7 @@ const App = () => {
                     </>
                 } />
                 <Route path="/add-rating/:id" element={<AddRating />} />
-                <Route path="/add-school" element={<AddSchool />} />  {/* Add route for AddSchool */}
+                <Route path="/add-school" element={<AddSchool addSchool={addSchool} />} />  {/* Pass addSchool method */}
             </Routes>
         </div>
     );

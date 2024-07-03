@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const AddSchool = () => {
+const AddSchool = ({ addSchool }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -19,7 +19,8 @@ const AddSchool = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/schools', formData);
+            const response = await axios.post('http://localhost:5000/schools', formData);
+            addSchool(response.data);
             navigate('/');
         } catch (error) {
             console.error('There was an error adding the school!', error);
