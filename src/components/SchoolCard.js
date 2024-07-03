@@ -1,123 +1,109 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
-import { useDrag } from 'react-dnd';
 import Review from './Review';
+import { Bar } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
 import './SchoolCard.css';
 
-const SchoolCard = ({ school, onAddToFavorites }) => {
-    const [showAllReviews, setShowAllReviews] = useState(true);
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'school',
-        item: { school },
-        collect: monitor => ({
-            isDragging: !!monitor.isDragging(),
-        }),
-    }));
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
-    const calculateAverageReview = () => {
-        const totalRatings = school.ratings.length;
-        const averageRatings = school.ratings.reduce((acc, rating) => {
-            acc.rating += rating.rating;
-            acc.research += rating.research;
-            acc.socialLife += rating.socialLife;
-            acc.academicSupport += rating.academicSupport;
-            acc.classSize += rating.classSize;
-            acc.location += rating.location;
-            return acc;
-        }, {
-            rating: 0,
-            research: 0,
-            socialLife: 0,
-            academicSupport: 0,
-            classSize: 0,
-            location: 0
-        });
+const SchoolCard = ({ school }) => {
+    const [showAllReviews, setShowAllReviews] = useState(false);
 
-        for (const key in averageRatings) {
-            averageRatings[key] = (averageRatings[key] / totalRatings).toFixed(1);
-        }
-
-        return averageRatings;
+    const averageReview = {
+        research: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.research, 0) / school.ratings.length : 0,
+        socialLife: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.socialLife, 0) / school.ratings.length : 0,
+        academicSupport: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.academicSupport, 0) / school.ratings.length : 0,
+        classSize: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.classSize, 0) / school.ratings.length : 0,
+        location: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.location, 0) / school.ratings.length : 0,
     };
 
-    const averageReview = calculateAverageReview();
-
     const data = {
-        labels: ['Rating', 'Research', 'Social Life', 'Academic Support', 'Class Size', 'Location'],
+        labels: ['Research', 'Social Life', 'Academic Support', 'Class Size', 'Location'],
         datasets: [
             {
                 label: 'Average Review',
                 data: [
-                    averageReview.rating,
                     averageReview.research,
                     averageReview.socialLife,
                     averageReview.academicSupport,
                     averageReview.classSize,
-                    averageReview.location
+                    averageReview.location,
                 ],
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }
-        ]
+                backgroundColor: 'rgba(75,192,192,0.4)',
+            },
+        ],
     };
 
     const options = {
-        responsive: true,
-        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,
-                max: 10,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    };
-
-    const handleAddToFavorites = () => {
-        onAddToFavorites(school);
+                max: 5,
+            },
+        },
     };
 
     return (
-        <div ref={drag} className="school-card" style={{ opacity: isDragging ? 0.5 : 1 }}>
-            <h2>{school.name}</h2>
-            <p>{school.description}</p>
-            <p><strong>Address:</strong> {school.address}</p>
-            <p><strong>Website:</strong> <a href={school.website} target="_blank" rel="noopener noreferrer">{school.website}</a></p>
-            <button onClick={() => setShowAllReviews(!showAllReviews)} className="btn btn-secondary">
-                {showAllReviews ? 'Show Average Review' : 'Show All Reviews'}
-            </button>
-            {showAllReviews ? (
-                <div>
-                    <h3>Ratings</h3>
-                    <div className="reviews-container">
-                        {school.ratings.map((rating, index) => (
-                            <Review key={index} review={rating} />
-                        ))}
-                    </div>
+        <div className="card h-100">
+            <div className="card-body">
+                <h2 className="card-title">{school.name}</h2>
+                <p className="card-text">{school.description}</p>
+                <p><strong>Address:</strong> {school.address}</p>
+                <p><strong>Website:</strong> <a href={school.website} target="_blank" rel="noopener noreferrer">{school.website}</a></p>
+                <div className="stars mb-2">
+                    {'★'.repeat(Math.round(school.averageStars))}{'☆'.repeat(5 - Math.round(school.averageStars))}
+                    <span> ({school.averageStars} stars)</span>
                 </div>
-            ) : (
-                <div>
-                    <h3>Average Review</h3>
-                    <ul>
-                        <li><strong>Rating:</strong> {averageReview.rating}</li>
-                        <li><strong>Research:</strong> {averageReview.research}</li>
-                        <li><strong>Social Life:</strong> {averageReview.socialLife}</li>
-                        <li><strong>Academic Support:</strong> {averageReview.academicSupport}</li>
-                        <li><strong>Class Size:</strong> {averageReview.classSize}</li>
-                        <li><strong>Location:</strong> {averageReview.location}</li>
-                    </ul>
-                    <div className="chart-container">
-                        <Bar data={data} options={options} />
+                <button onClick={() => setShowAllReviews(!showAllReviews)} className="btn btn-secondary mb-2">
+                    {showAllReviews ? 'Show Average Review' : 'Show All Reviews'}
+                </button>
+                {showAllReviews ? (
+                    <div>
+                        <h3>Ratings</h3>
+                        <div className="reviews-container">
+                            {school.ratings.map((rating, index) => (
+                                <Review
+                                    key={index}
+                                    review={rating}
+                                    schoolId={school._id}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
-            <button onClick={handleAddToFavorites} className="btn btn-secondary">Add to Favorites</button>
-            <Link to={`/add-rating/${school._id}`} className="btn btn-secondary">Add Rating</Link>
+                ) : (
+                    <div>
+                        <h3>Average Review</h3>
+                        <ul>
+                            <li><strong>Research:</strong> {averageReview.research.toFixed(1)}</li>
+                            <li><strong>Social Life:</strong> {averageReview.socialLife.toFixed(1)}</li>
+                            <li><strong>Academic Support:</strong> {averageReview.academicSupport.toFixed(1)}</li>
+                            <li><strong>Class Size:</strong> {averageReview.classSize.toFixed(1)}</li>
+                            <li><strong>Location:</strong> {averageReview.location.toFixed(1)}</li>
+                        </ul>
+                        <div className="chart-container">
+                            <Bar data={data} options={options} />
+                        </div>
+                    </div>
+                )}
+                <Link to={`/add-rating/${school._id}`} className="btn btn-primary mt-2">Add Rating</Link>
+            </div>
         </div>
     );
 };

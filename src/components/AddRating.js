@@ -1,62 +1,137 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const AddRating = () => {
     const { id } = useParams();
-    const [rating, setRating] = useState('');
-    const [comment, setComment] = useState('');
-    const [research, setResearch] = useState('');
-    const [socialLife, setSocialLife] = useState('');
-    const [academicSupport, setAcademicSupport] = useState('');
-    const [classSize, setClassSize] = useState('');
-    const [location, setLocation] = useState('');
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        rating: 0,
+        comment: '',
+        research: 0,
+        socialLife: 0,
+        academicSupport: 0,
+        classSize: 0,
+        location: 0,
+    });
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        axios.post(`http://localhost:5000/schools/${id}/ratings`, 
-            { rating, comment, research, socialLife, academicSupport, classSize, location })
-            .then(response => {
-                alert('Rating added successfully!');
-            })
-            .catch(error => {
-                console.error('There was an error adding the rating!', error);
-            });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`http://localhost:5000/schools/${id}/ratings`, formData);
+            navigate('/');
+        } catch (error) {
+            console.error('There was an error adding the rating!', error);
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Add a Rating</h2>
-            <div>
-                <label>Overall Rating:</label>
-                <input type="number" value={rating} onChange={(e) => setRating(e.target.value)} required />
-            </div>
-            <div>
-                <label>Comment:</label>
-                <input type="text" value={comment} onChange={(e) => setComment(e.target.value)} required />
-            </div>
-            <div>
-                <label>Research:</label>
-                <input type="number" value={research} onChange={(e) => setResearch(e.target.value)} required />
-            </div>
-            <div>
-                <label>Social Life:</label>
-                <input type="number" value={socialLife} onChange={(e) => setSocialLife(e.target.value)} required />
-            </div>
-            <div>
-                <label>Academic Support:</label>
-                <input type="number" value={academicSupport} onChange={(e) => setAcademicSupport(e.target.value)} required />
-            </div>
-            <div>
-                <label>Class Size:</label>
-                <input type="number" value={classSize} onChange={(e) => setClassSize(e.target.value)} required />
-            </div>
-            <div>
-                <label>Location:</label>
-                <input type="number" value={location} onChange={(e) => setLocation(e.target.value)} required />
-            </div>
-            <button type="submit">Add Rating</button>
-        </form>
+        <div className="container">
+            <h2>Add Rating</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label htmlFor="rating" className="form-label">Rating (1-5 stars)</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="rating"
+                        name="rating"
+                        value={formData.rating}
+                        onChange={handleChange}
+                        min="1"
+                        max="5"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="comment" className="form-label">Comment</label>
+                    <textarea
+                        className="form-control"
+                        id="comment"
+                        name="comment"
+                        value={formData.comment}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="research" className="form-label">Research</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="research"
+                        name="research"
+                        value={formData.research}
+                        onChange={handleChange}
+                        min="0"
+                        max="5"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="socialLife" className="form-label">Social Life</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="socialLife"
+                        name="socialLife"
+                        value={formData.socialLife}
+                        onChange={handleChange}
+                        min="0"
+                        max="5"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="academicSupport" className="form-label">Academic Support</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="academicSupport"
+                        name="academicSupport"
+                        value={formData.academicSupport}
+                        onChange={handleChange}
+                        min="0"
+                        max="5"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="classSize" className="form-label">Class Size</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="classSize"
+                        name="classSize"
+                        value={formData.classSize}
+                        onChange={handleChange}
+                        min="0"
+                        max="5"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="location" className="form-label">Location</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        min="0"
+                        max="5"
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary">Add Rating</button>
+            </form>
+        </div>
     );
 };
 
