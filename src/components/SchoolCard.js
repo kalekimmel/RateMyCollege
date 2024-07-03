@@ -15,7 +15,6 @@ import {
 } from 'chart.js';
 import './SchoolCard.css';
 
-// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,

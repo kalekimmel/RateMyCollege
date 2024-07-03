@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvent } from 'react-leafl
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix for default marker icon issues with Webpack
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -22,7 +21,6 @@ const AddMarkerOnClick = ({ setMarkers }) => {
 const SchoolMap = ({ schools }) => {
   const [markers, setMarkers] = useState([]);
 
-  // Combine existing school markers with newly added markers
   const allMarkers = useMemo(() =>
     [
       ...schools.filter(school => school.latitude && school.longitude).map((school, index) => ({

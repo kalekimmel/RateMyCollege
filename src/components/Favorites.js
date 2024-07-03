@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
-import { ItemTypes } from '../constants'; // Import ItemTypes
+import { ItemTypes } from '../constants'; 
 import SchoolCard from './SchoolCard';
 
 const Favorites = ({ favorites, moveToSchools }) => {

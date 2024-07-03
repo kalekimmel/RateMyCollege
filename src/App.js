@@ -23,7 +23,7 @@ const App = () => {
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [token, setToken] = useState(''); // State for authentication token
+  const [token, setToken] = useState(''); 
 
   useEffect(() => {
     const fetchSchools = async () => {
