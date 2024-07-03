@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const AddSchool = ({ addSchool }) => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         address: '',
-        website: ''
+        website: '',
+        price: '' // Add price to form data
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -21,7 +22,13 @@ const AddSchool = ({ addSchool }) => {
         try {
             const response = await axios.post('http://localhost:5000/schools', formData);
             addSchool(response.data);
-            navigate('/');
+            setFormData({
+                name: '',
+                description: '',
+                address: '',
+                website: '',
+                price: '' // Reset price field
+            });
         } catch (error) {
             console.error('There was an error adding the school!', error);
         }
@@ -31,49 +38,57 @@ const AddSchool = ({ addSchool }) => {
         <div className="container">
             <h2>Add School</h2>
             <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="name" className="form-label">School Name</label>
+                <div className="form-group">
+                    <label>Name</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="description" className="form-label">Description</label>
-                    <textarea
+                <div className="form-group">
+                    <label>Description</label>
+                    <input
+                        type="text"
                         className="form-control"
-                        id="description"
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="address" className="form-label">Address</label>
+                <div className="form-group">
+                    <label>Address</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="address"
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
                         required
                     />
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="website" className="form-label">Website</label>
+                <div className="form-group">
+                    <label>Website</label>
                     <input
                         type="url"
                         className="form-control"
-                        id="website"
                         name="website"
                         value={formData.website}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Price</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        name="price"
+                        value={formData.price}
                         onChange={handleChange}
                         required
                     />

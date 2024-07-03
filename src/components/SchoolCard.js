@@ -67,6 +67,7 @@ const SchoolCard = ({ school, moveToFavorites, isFavorite }) => {
                 <p className="card-text">{school.description}</p>
                 <p><strong>Address:</strong> {school.address}</p>
                 <p><strong>Website:</strong> <a href={school.website} target="_blank" rel="noopener noreferrer">{school.website}</a></p>
+                <p><strong>Price:</strong> ${school.price}</p>
                 <div className="stars mb-2">
                     {'★'.repeat(Math.round(school.averageStars))}{'☆'.repeat(5 - Math.round(school.averageStars))}
                     <span> ({school.averageStars} stars)</span>

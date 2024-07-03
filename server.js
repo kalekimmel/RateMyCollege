@@ -55,6 +55,7 @@ app.post('/schools', async (req, res) => {
         description: req.body.description,
         address: req.body.address,
         website: req.body.website,
+        price: req.body.price, // Include price in the request
         ratings: []
     });
 
@@ -65,7 +66,6 @@ app.post('/schools', async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
-
 // Route to add a rating
 app.post('/schools/:id/ratings', async (req, res) => {
     try {
