@@ -9,18 +9,19 @@ app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/schools', {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false // To avoid deprecation warnings
 });
 
 // Define the review schema
 const reviewSchema = new mongoose.Schema({
-    rating: Number,
-    comment: String,
-    research: Number,
-    socialLife: Number,
-    academicSupport: Number,
-    classSize: Number,
-    location: Number,
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, required: true },
+    research: { type: Number, required: true, min: 0, max: 5 },
+    socialLife: { type: Number, required: true, min: 0, max: 5 },
+    academicSupport: { type: Number, required: true, min: 0, max: 5 },
+    classSize: { type: Number, required: true, min: 0, max: 5 },
+    location: { type: Number, required: true, min: 0, max: 5 },
     date: { type: Date, default: Date.now },
     upvotes: { type: Number, default: 0 },
     downvotes: { type: Number, default: 0 }
@@ -28,10 +29,10 @@ const reviewSchema = new mongoose.Schema({
 
 // Define the school schema
 const schoolSchema = new mongoose.Schema({
-    name: String,
-    description: String,
-    address: String,
-    website: String,
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    address: { type: String, required: true },
+    website: { type: String, required: true },
     ratings: [reviewSchema]
 });
 
@@ -69,6 +70,9 @@ app.post('/schools', async (req, res) => {
 app.post('/schools/:id/ratings', async (req, res) => {
     try {
         const school = await School.findById(req.params.id);
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
         const newRating = {
             rating: req.body.rating,
             comment: req.body.comment,
@@ -92,7 +96,13 @@ app.post('/schools/:id/ratings', async (req, res) => {
 app.post('/schools/:schoolId/reviews/:reviewId/upvote', async (req, res) => {
     try {
         const school = await School.findById(req.params.schoolId);
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
         const review = school.ratings.id(req.params.reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
         review.upvotes += 1;
         await school.save();
         res.json(review);
@@ -105,7 +115,13 @@ app.post('/schools/:schoolId/reviews/:reviewId/upvote', async (req, res) => {
 app.post('/schools/:schoolId/reviews/:reviewId/downvote', async (req, res) => {
     try {
         const school = await School.findById(req.params.schoolId);
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
         const review = school.ratings.id(req.params.reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
         review.downvotes += 1;
         await school.save();
         res.json(review);

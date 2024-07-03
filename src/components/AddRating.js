@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const AddRating = () => {
+const AddRating = ({ addReview }) => {
     const { id } = useParams();
+    const [update,setUpdate]=useState(false);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         rating: 0,
@@ -22,8 +23,10 @@ const AddRating = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setUpdate(!update);
         try {
-            await axios.post(`http://localhost:5000/schools/${id}/ratings`, formData);
+            const response = await axios.post(`http://localhost:5000/schools/${id}/ratings`, formData);
+            addReview(id, response.data);
             navigate('/');
         } catch (error) {
             console.error('There was an error adding the rating!', error);

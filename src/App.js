@@ -4,7 +4,7 @@ import axios from 'axios';
 import Home from './components/Home';
 import AddRating from './components/AddRating';
 import SchoolCard from './components/SchoolCard';
-import AddSchool from './components/AddSchool';  // Import AddSchool component
+import AddSchool from './components/AddSchool';
 import './App.css';
 
 const App = () => {
@@ -46,6 +46,18 @@ const App = () => {
         setSchools([...schools, { ...newSchool, averageStars: parseFloat(averageStars) }]);
     };
 
+    const addReview = (schoolId, newReview) => {
+        setSchools(prevSchools => prevSchools.map(school => {
+            if (school._id === schoolId) {
+                const updatedRatings = [...school.ratings, newReview];
+                const averageStars = updatedRatings.length > 0 ? 
+                    (updatedRatings.reduce((sum, rating) => sum + rating.rating, 0) / updatedRatings.length).toFixed(1) : 0;
+                return { ...school, ratings: updatedRatings, averageStars: parseFloat(averageStars) };
+            }
+            return school;
+        }));
+    };
+
     const filteredSchools = schools.filter(school =>
         school.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -69,7 +81,7 @@ const App = () => {
                 <Link to="/">Home</Link> | <Link to="/add-school">Add School</Link>
             </nav>
             <Routes>
-                <Route exact path="/" element={
+                <Route path="/" element={
                     <>
                         <div className="row mb-4">
                             <div className="col-md-6">
@@ -98,8 +110,8 @@ const App = () => {
                         </div>
                     </>
                 } />
-                <Route path="/add-rating/:id" element={<AddRating />} />
-                <Route path="/add-school" element={<AddSchool addSchool={addSchool} />} />  {/* Pass addSchool method */}
+                <Route path="/add-rating/:id" element={<AddRating addReview={addReview} />} />
+                <Route path="/add-school" element={<AddSchool addSchool={addSchool} />} />
             </Routes>
         </div>
     );
