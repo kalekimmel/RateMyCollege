@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
+import AddRatingModal from './AddRatingModal'; // Import AddRatingModal
 import Review from './Review';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -13,7 +15,7 @@ import {
 } from 'chart.js';
 import './SchoolCard.css';
 
-// Register ChartJS components
+// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -23,8 +25,12 @@ ChartJS.register(
     Legend
 );
 
-const SchoolCard = ({ school, moveToFavorites, isFavorite }) => {
+const SchoolCard = ({ school, moveToFavorites, isFavorite, addReview }) => {
     const [showAllReviews, setShowAllReviews] = useState(false);
+    const [showNotes, setShowNotes] = useState(false);
+    const [pros, setPros] = useState('');
+    const [cons, setCons] = useState('');
+    const [showAddRatingModal, setShowAddRatingModal] = useState(false);
 
     const averageReview = {
         research: school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r.research, 0) / school.ratings.length : 0,
@@ -67,7 +73,6 @@ const SchoolCard = ({ school, moveToFavorites, isFavorite }) => {
                 <p className="card-text">{school.description}</p>
                 <p><strong>Address:</strong> {school.address}</p>
                 <p><strong>Website:</strong> <a href={school.website} target="_blank" rel="noopener noreferrer">{school.website}</a></p>
-                <p><strong>Price:</strong> ${school.price}</p>
                 <div className="stars mb-2">
                     {'★'.repeat(Math.round(school.averageStars))}{'☆'.repeat(5 - Math.round(school.averageStars))}
                     <span> ({school.averageStars} stars)</span>
@@ -103,9 +108,33 @@ const SchoolCard = ({ school, moveToFavorites, isFavorite }) => {
                         </div>
                     </div>
                 )}
-                <Link to={`/add-rating/${school._id}`} className="btn btn-primary mt-2">Add Rating</Link>
-                <button onClick={() => moveToFavorites(school._id)} className={`btn mt-2 ${isFavorite ? 'btn-danger' : 'btn-warning'}`}>
-                    {isFavorite ? 'Remove from Favorites' : 'Favorite'}
+                <div className="mb-2">
+                    <button onClick={() => setShowNotes(!showNotes)} className="btn btn-info">Toggle Notes</button>
+                    {showNotes && (
+                        <div className="mt-2">
+                            <div className="form-group">
+                                <label>Pros</label>
+                                <textarea
+                                    className="form-control"
+                                    value={pros}
+                                    onChange={(e) => setPros(e.target.value)}
+                                ></textarea>
+                            </div>
+                            <div className="form-group">
+                                <label>Cons</label>
+                                <textarea
+                                    className="form-control"
+                                    value={cons}
+                                    onChange={(e) => setCons(e.target.value)}
+                                ></textarea>
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <Button variant="primary" onClick={() => setShowAddRatingModal(true)}>Add Rating</Button>
+                <AddRatingModal show={showAddRatingModal} handleClose={() => setShowAddRatingModal(false)} schoolId={school._id} addReview={addReview} />
+                <button onClick={() => moveToFavorites(school._id)} className="btn btn-warning mt-2">
+                    {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                 </button>
             </div>
         </div>

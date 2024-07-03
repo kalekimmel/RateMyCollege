@@ -70,3 +70,32 @@
     display: flex;
     flex-direction: column;
 }
+.card-body {
+    position: relative;
+}
+
+.stars {
+    font-size: 1.2rem;
+    color: #f39c12;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.chart-container {
+    width: 100%;
+    height: 200px;
+}
+
+.notes-section {
+    margin-top: 1rem;
+}
+
+textarea.form-control {
+    resize: none;
+}
