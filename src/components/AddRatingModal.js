@@ -22,10 +22,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         try {
             const response = await axios.post(`http://localhost:5000/schools/${schoolId}/ratings`, formData);
-            console.log('Added rating response:', response.data);
             addReview(schoolId, response.data);
             setFormData({
                 rating: '',
@@ -57,6 +55,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.rating}
                             onChange={handleChange}
                             required
+                            min="1"
+                            max="5"
                         />
                     </Form.Group>
                     <Form.Group controlId="formComment">
@@ -66,6 +66,7 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             name="comment"
                             value={formData.comment}
                             onChange={handleChange}
+                            required
                         />
                     </Form.Group>
                     <Form.Group controlId="formResearch">
@@ -76,6 +77,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.research}
                             onChange={handleChange}
                             required
+                            min="0"
+                            max="5"
                         />
                     </Form.Group>
                     <Form.Group controlId="formSocialLife">
@@ -86,6 +89,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.socialLife}
                             onChange={handleChange}
                             required
+                            min="0"
+                            max="5"
                         />
                     </Form.Group>
                     <Form.Group controlId="formAcademicSupport">
@@ -96,6 +101,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.academicSupport}
                             onChange={handleChange}
                             required
+                            min="0"
+                            max="5"
                         />
                     </Form.Group>
                     <Form.Group controlId="formClassSize">
@@ -106,6 +113,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.classSize}
                             onChange={handleChange}
                             required
+                            min="0"
+                            max="5"
                         />
                     </Form.Group>
                     <Form.Group controlId="formLocation">
@@ -116,6 +125,8 @@ const AddRatingModal = ({ show, handleClose, schoolId, addReview }) => {
                             value={formData.location}
                             onChange={handleChange}
                             required
+                            min="0"
+                            max="5"
                         />
                     </Form.Group>
                     <Button variant="primary" type="submit">

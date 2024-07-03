@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, Link } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import axios from 'axios';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import SchoolCard from './components/SchoolCard';
 import Favorites from './components/Favorites';
 import SchoolMap from './components/SchoolMap';
-import AddSchoolModal from './components/AddSchoolModal'; // Import AddSchoolModal
+import AddSchoolModal from './components/AddSchoolModal';
+import RegisterModal from './components/RegisterModal';
+import LoginModal from './components/LoginModal';
 import { Button } from 'react-bootstrap';
-import { ItemTypes } from './constants';
 import './App.css';
 
 const App = () => {
@@ -20,6 +21,9 @@ const App = () => {
   const [filterCondition, setFilterCondition] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [token, setToken] = useState(''); // State for authentication token
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -122,6 +126,10 @@ const App = () => {
     }
   });
 
+  const handleLogout = () => {
+    setToken('');
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App container">
@@ -129,7 +137,17 @@ const App = () => {
           <h1 className="text-center">Rate My School</h1>
         </header>
         <nav className="mb-4">
-          <Button variant="primary" onClick={() => setShowAddSchoolModal(true)}>Add School</Button>
+          <Button variant="primary" onClick={() => setShowAddSchoolModal(true)} disabled={!token}>
+            Add School
+          </Button>
+          {!token ? (
+            <>
+              <Button variant="secondary" onClick={() => setShowRegisterModal(true)}>Register</Button>
+              <Button variant="secondary" onClick={() => setShowLoginModal(true)}>Login</Button>
+            </>
+          ) : (
+            <Button variant="danger" onClick={handleLogout}>Logout</Button>
+          )}
         </nav>
         <Favorites favorites={favorites} moveToSchools={moveToSchools} />
         <div className="row mb-4">
@@ -186,7 +204,9 @@ const App = () => {
           ))}
         </div>
         <SchoolMap schools={schools} /> 
-        <AddSchoolModal show={showAddSchoolModal} handleClose={() => setShowAddSchoolModal(false)} addSchool={addSchool} />
+        <AddSchoolModal show={showAddSchoolModal} handleClose={() => setShowAddSchoolModal(false)} addSchool={addSchool} token={token} />
+        <RegisterModal show={showRegisterModal} handleClose={() => setShowRegisterModal(false)} />
+        <LoginModal show={showLoginModal} handleClose={() => setShowLoginModal(false)} setToken={setToken} />
       </div>
     </DndProvider>
   );
