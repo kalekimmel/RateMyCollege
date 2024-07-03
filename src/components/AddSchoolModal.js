@@ -8,7 +8,7 @@ const AddSchoolModal = ({ show, handleClose, addSchool }) => {
         description: '',
         address: '',
         website: '',
-        price: ''
+        price: '',
     });
 
     const handleChange = (e) => {
@@ -20,9 +20,11 @@ const AddSchoolModal = ({ show, handleClose, addSchool }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         try {
-            const response = await axios.post('http://localhost:5000/schools', formData);
+            const response = await axios.post('http://localhost:5000/schools', { 
+                ...formData, 
+                price: parseFloat(formData.price) // Ensure price is parsed as a float
+            });
             console.log('Added school response:', response.data);
             addSchool(response.data);
             setFormData({
@@ -103,6 +105,5 @@ const AddSchoolModal = ({ show, handleClose, addSchool }) => {
         </Modal>
     );
 };
-
 
 export default AddSchoolModal;

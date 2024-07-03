@@ -27,6 +27,8 @@ const AddSchool = ({ addSchool }) => {
                 description: '',
                 address: '',
                 website: '',
+                latitude: '',
+                longitude: '',
                 price: '' // Reset price field
             });
         } catch (error) {

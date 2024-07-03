@@ -5,6 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import SchoolCard from './components/SchoolCard';
 import Favorites from './components/Favorites';
+import SchoolMap from './components/SchoolMap';
 import AddSchoolModal from './components/AddSchoolModal'; // Import AddSchoolModal
 import { Button } from 'react-bootstrap';
 import { ItemTypes } from './constants';
@@ -96,7 +97,7 @@ const App = () => {
     if (!filterField || !filterCondition || !filterValue) return true;
     const value = parseFloat(filterValue);
     const getAverage = (field) => school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r[field], 0) / school.ratings.length : 0;
-    
+
     if (filterField === 'location') {
       return filterCondition === 'greater' ? getAverage('location') > value : getAverage('location') < value;
     } else if (filterField === 'research') {
@@ -184,9 +185,7 @@ const App = () => {
             </div>
           ))}
         </div>
-        <Routes>
-          {/* Remove AddRating route */}
-        </Routes>
+        <SchoolMap schools={schools} /> 
         <AddSchoolModal show={showAddSchoolModal} handleClose={() => setShowAddSchoolModal(false)} addSchool={addSchool} />
       </div>
     </DndProvider>

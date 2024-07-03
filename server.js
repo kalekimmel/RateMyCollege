@@ -55,7 +55,7 @@ app.post('/schools', async (req, res) => {
         description: req.body.description,
         address: req.body.address,
         website: req.body.website,
-        price: req.body.price, // Include price in the request
+        price: req.body.price,
         ratings: []
     });
 
