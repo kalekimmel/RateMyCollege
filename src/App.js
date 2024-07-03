@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import SchoolList from './components/SchoolList';
+import AddSchool from './components/AddSchool';
+import AddRating from './components/AddRating';
+import './styles.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <DndProvider backend={HTML5Backend}>
+            <Router>
+                <div className="app-container">
+                    <nav className="navbar">
+                        <div className="navbar-brand">
+                            <Link to="/">Rate My School</Link>
+                        </div>
+                        <ul className="navbar-nav">
+                            <li className="nav-item">
+                                <Link to="/">Home</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/add-school">Add School</Link>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div className="content">
+                        <Routes>
+                            <Route path="/" element={<SchoolList />} />
+                            <Route path="/add-school" element={<AddSchool />} />
+                            <Route path="/add-rating/:id" element={<AddRating />} />
+                        </Routes>
+                    </div>
+                </div>
+            </Router>
+        </DndProvider>
+    );
 }
+
 
 export default App;

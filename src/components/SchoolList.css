@@ -1,0 +1,52 @@
+.school-list-container {
+    padding: 20px;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.sort-dropdown {
+    margin-bottom: 20px;
+}
+
+.school-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.favorite-schools {
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-height: 200px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+
+.page-item {
+    margin: 0 5px;
+}
+
+.page-link {
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    text-decoration: underline;
+}
