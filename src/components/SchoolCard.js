@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import './SchoolCard.css';
 
-// Register Chart.js components
+// Register ChartJS components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -23,7 +23,7 @@ ChartJS.register(
     Legend
 );
 
-const SchoolCard = ({ school }) => {
+const SchoolCard = ({ school, moveToFavorites, isFavorite }) => {
     const [showAllReviews, setShowAllReviews] = useState(false);
 
     const averageReview = {
@@ -103,6 +103,9 @@ const SchoolCard = ({ school }) => {
                     </div>
                 )}
                 <Link to={`/add-rating/${school._id}`} className="btn btn-primary mt-2">Add Rating</Link>
+                <button onClick={() => moveToFavorites(school._id)} className={`btn mt-2 ${isFavorite ? 'btn-danger' : 'btn-warning'}`}>
+                    {isFavorite ? 'Remove from Favorites' : 'Favorite'}
+                </button>
             </div>
         </div>
     );

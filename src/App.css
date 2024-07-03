@@ -44,6 +44,17 @@ h1 {
   font-size: 20px;
   color: #FFD700;
 }
+.favorites-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+}
+
+.favorites-section h2 {
+  margin-top: 0;
+}
 
 .chart-container {
   width: 100%;
