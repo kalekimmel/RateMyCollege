@@ -53,6 +53,27 @@ const reviewSchema = new mongoose.Schema({
     downvotes: { type: Number, default: 0 }
 });
 
+// Discussion schema
+const discussionSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    username: { type: String, required: true },
+    content: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+});
+
+// Question schema
+const answerSchema = new mongoose.Schema({
+    content: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+});
+
+const questionSchema = new mongoose.Schema({
+    content: { type: String, required: true },
+    answers: [answerSchema],
+    upvotes: { type: Number, default: 0 },
+    date: { type: Date, default: Date.now }
+});
+
 // School schema and model
 const schoolSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -64,6 +85,7 @@ const schoolSchema = new mongoose.Schema({
 });
 
 const School = mongoose.model('School', schoolSchema);
+const Question = mongoose.model('Question', questionSchema);
 
 // User registration
 app.post('/register', async (req, res) => {
@@ -143,42 +165,118 @@ app.post('/schools', authenticateToken, async (req, res) => {
 
 // Route to add a rating (no authentication required)
 app.post('/schools/:id/ratings', async (req, res) => {
-    console.log('Incoming request body:', req.body); // Log incoming request
+    console.log('Incoming request body:', req.body);
 
     try {
         const school = await School.findById(req.params.id);
         if (!school) {
             return res.status(404).json({ message: 'School not found' });
         }
-        // Parse the fields to ensure they are numbers
         const newRating = {
-            rating: parseInt(req.body.rating, 10),
+            rating: req.body.rating,
             comment: req.body.comment,
-            research: parseInt(req.body.research, 10),
-            socialLife: parseInt(req.body.socialLife, 10),
-            academicSupport: parseInt(req.body.academicSupport, 10),
-            classSize: parseInt(req.body.classSize, 10),
-            location: parseInt(req.body.location, 10),
+            research: req.body.research,
+            socialLife: req.body.socialLife,
+            academicSupport: req.body.academicSupport,
+            classSize: req.body.classSize,
+            location: req.body.location,
             upvotes: 0,
             downvotes: 0
         };
-        // Validate the parsed fields to ensure they are within the expected range
-        if (
-            isNaN(newRating.rating) || newRating.rating < 1 || newRating.rating > 5 ||
-            isNaN(newRating.research) || newRating.research < 0 || newRating.research > 5 ||
-            isNaN(newRating.socialLife) || newRating.socialLife < 0 || newRating.socialLife > 5 ||
-            isNaN(newRating.academicSupport) || newRating.academicSupport < 0 || newRating.academicSupport > 5 ||
-            isNaN(newRating.classSize) || newRating.classSize < 0 || newRating.classSize > 5 ||
-            isNaN(newRating.location) || newRating.location < 0 || newRating.location > 5
-        ) {
-            throw new Error('Invalid input values');
-        }
         school.ratings.push(newRating);
         await school.save();
         res.status(201).json(newRating);
     } catch (error) {
-        console.log('Error:', error); // Log error details
         res.status(400).json({ message: error.message });
+    }
+});
+
+// Route to get discussions for a school
+app.get('/schools/:id/discussions', async (req, res) => {
+    try {
+        const school = await School.findById(req.params.id).select('discussions');
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+        res.json(school.discussions);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Route to add a discussion (requires authentication)
+app.post('/schools/:id/discussions', authenticateToken, async (req, res) => {
+    try {
+        const school = await School.findById(req.params.id);
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+        const newDiscussion = {
+            userId: req.user.userId,
+            username: req.user.username,
+            content: req.body.content
+        };
+        school.discussions.push(newDiscussion);
+        await school.save();
+        res.status(201).json(newDiscussion);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Route to get all questions
+app.get('/questions', async (req, res) => {
+    try {
+        const questions = await Question.find().sort({ upvotes: -1 });
+        res.json(questions);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Route to add a question
+app.post('/questions', async (req, res) => {
+    try {
+        const newQuestion = new Question({
+            content: req.body.content
+        });
+        await newQuestion.save();
+        res.status(201).json(newQuestion);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Route to add an answer to a question
+app.post('/questions/:id/answers', async (req, res) => {
+    try {
+        const question = await Question.findById(req.params.id);
+        if (!question) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
+        const newAnswer = {
+            content: req.body.content
+        };
+        question.answers.push(newAnswer);
+        await question.save();
+        res.status(201).json(newAnswer);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Route to upvote a question
+app.post('/questions/:id/upvote', async (req, res) => {
+    try {
+        const question = await Question.findById(req.params.id);
+        if (!question) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
+        question.upvotes += 1;
+        await question.save();
+        res.json(question);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes,Link } from 'react-router-dom';
 import axios from 'axios';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -8,7 +8,9 @@ import Favorites from './components/Favorites';
 import SchoolMap from './components/SchoolMap';
 import AddSchoolModal from './components/AddSchoolModal';
 import RegisterModal from './components/RegisterModal';
+import QuestionList from './components/QuestionList';
 import LoginModal from './components/LoginModal';
+import QuestionModal from './components/QuestionModal'; 
 import { Button } from 'react-bootstrap';
 import './App.css';
 
@@ -24,6 +26,8 @@ const App = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [token, setToken] = useState(''); 
+  const [showQuestionModal, setShowQuestionModal] = useState(false); // Add state for QuestionModal
+
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -140,6 +144,7 @@ const App = () => {
           <Button variant="primary" onClick={() => setShowAddSchoolModal(true)} disabled={!token}>
             Add School
           </Button>
+          <Button variant="info" onClick={() => setShowQuestionModal(true)}>Q&A</Button> {/* Add Q&A button */}
           {!token ? (
             <>
               <Button variant="secondary" onClick={() => setShowRegisterModal(true)}>Register</Button>
@@ -148,6 +153,7 @@ const App = () => {
           ) : (
             <Button variant="danger" onClick={handleLogout}>Logout</Button>
           )}
+
         </nav>
         <Favorites favorites={favorites} moveToSchools={moveToSchools} />
         <div className="row mb-4">
@@ -207,6 +213,10 @@ const App = () => {
         <AddSchoolModal show={showAddSchoolModal} handleClose={() => setShowAddSchoolModal(false)} addSchool={addSchool} token={token} />
         <RegisterModal show={showRegisterModal} handleClose={() => setShowRegisterModal(false)} />
         <LoginModal show={showLoginModal} handleClose={() => setShowLoginModal(false)} setToken={setToken} />
+        <QuestionModal show={showQuestionModal} handleClose={() => setShowQuestionModal(false)} /> {/* Add QuestionModal */}
+
+        <Routes>
+        </Routes>
       </div>
     </DndProvider>
   );
