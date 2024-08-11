@@ -2,7 +2,7 @@
 
 To start app:
 make sure you have the following installed:
-Node.js 
+Node.js
 MongoDB (Ensure MongoDB is running)
 
 Create a .env file in the root of the backend directory and add the following:
