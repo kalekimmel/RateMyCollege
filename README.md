@@ -5,7 +5,7 @@ make sure you have the following installed:
 Node.js
 MongoDB (Ensure MongoDB is running)
 
-Create a .env file in the root of the backend directory and add the following:
+Create a .env file in the root of the backend directory and add the following :
 
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/schools
