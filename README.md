@@ -5,6 +5,10 @@ make sure you have the following installed:
 Node.js
 MongoDB (Ensure MongoDB is running)
 
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+cd sentiment-backend
+
 Create a .env file in the root of the backend directory and add the following :
 
 PORT=5000
