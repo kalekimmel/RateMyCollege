@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import vader from 'vader-sentiment';
 import './Review.css';
 
 const Review = ({ review }) => {
@@ -18,4 +19,53 @@ const Review = ({ review }) => {
     );
 };
 
-export default Review;
+const Reviews = ({ reviews = [] }) => {
+    const [overallSentiment, setOverallSentiment] = useState(null);
+    const [summary, setSummary] = useState('');
+
+    useEffect(() => {
+        if (reviews.length > 0) {
+            analyzeSentiment(reviews);
+        }
+    }, [reviews]);
+
+    const analyzeSentiment = (reviews) => {
+        let totalSentiment = 0;
+        reviews.forEach(review => {
+            const result = vader.SentimentIntensityAnalyzer.polarity_scores(review.comment);
+            totalSentiment += result.compound;
+        });
+        const averageSentiment = totalSentiment / reviews.length;
+        setOverallSentiment(averageSentiment);
+        generateSummary(averageSentiment);
+    };
+
+    const generateSummary = (averageSentiment) => {
+        let summaryText = '';
+        if (averageSentiment > 0.05) {
+            summaryText = 'Overall, the reviews for this school are positive.';
+        } else if (averageSentiment < -0.05) {
+            summaryText = 'Overall, the reviews for this school are negative.';
+        } else {
+            summaryText = 'Overall, the reviews for this school are neutral.';
+        }
+        setSummary(summaryText);
+    };
+
+    return (
+        <div>
+            <h1>School Reviews</h1>
+            {reviews.map((review, index) => (
+                <Review key={index} review={review} />
+            ))}
+            {overallSentiment !== null && (
+                <div className="overall-sentiment">
+                    <h2>Overall Sentiment: {overallSentiment.toFixed(2)}</h2>
+                    <p>{summary}</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default Reviews;

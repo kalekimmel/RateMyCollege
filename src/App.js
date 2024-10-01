@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes,Link } from 'react-router-dom';
+import { Route, Routes, Link } from 'react-router-dom';
 import axios from 'axios';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -10,9 +10,14 @@ import AddSchoolModal from './components/AddSchoolModal';
 import RegisterModal from './components/RegisterModal';
 import QuestionList from './components/QuestionList';
 import LoginModal from './components/LoginModal';
-import QuestionModal from './components/QuestionModal'; 
+import QuestionModal from './components/QuestionModal';
+import ChatRoomModal from './components/ChatRoomModal'; // Import ChatRoomModal
+import Reviews from './components/Review'; // Import Reviews component
 import { Button } from 'react-bootstrap';
 import './App.css';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000'); // Initialize socket connection
 
 const App = () => {
   const [schools, setSchools] = useState([]);
@@ -25,18 +30,24 @@ const App = () => {
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [token, setToken] = useState(''); 
-  const [showQuestionModal, setShowQuestionModal] = useState(false); // Add state for QuestionModal
-
+  const [showChatRoomModal, setShowChatRoomModal] = useState(false); // State for ChatRoomModal
+  const [token, setToken] = useState('');
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [showReviews, setShowReviews] = useState(false); // State to show/hide reviews
 
   useEffect(() => {
     const fetchSchools = async () => {
       try {
         const response = await axios.get('http://localhost:5000/schools');
-        const schoolsWithRatings = response.data.map(school => {
+        const schoolsWithRatings = response.data.map((school) => {
           const ratings = school.ratings;
-          const averageStars = ratings.length > 0 ? 
-            (ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length).toFixed(1) : 0;
+          const averageStars =
+            ratings.length > 0
+              ? (
+                  ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+                  ratings.length
+                ).toFixed(1)
+              : 0;
           return { ...school, averageStars: parseFloat(averageStars) };
         });
         setSchools(schoolsWithRatings);
@@ -70,55 +81,80 @@ const App = () => {
 
   const addSchool = (newSchool) => {
     const ratings = newSchool.ratings || [];
-    const averageStars = ratings.length > 0 ? 
-      (ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length).toFixed(1) : 0;
+    const averageStars =
+      ratings.length > 0
+        ? (
+            ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+            ratings.length
+          ).toFixed(1)
+        : 0;
     setSchools([...schools, { ...newSchool, averageStars: parseFloat(averageStars) }]);
   };
 
   const addReview = (schoolId, newReview) => {
-    setSchools(prevSchools => prevSchools.map(school => {
-      if (school._id === schoolId) {
-        const updatedRatings = [...school.ratings, newReview];
-        const averageStars = updatedRatings.length > 0 ? 
-          (updatedRatings.reduce((sum, rating) => sum + rating.rating, 0) / updatedRatings.length).toFixed(1) : 0;
-        return { ...school, ratings: updatedRatings, averageStars: parseFloat(averageStars) };
-      }
-      return school;
-    }));
+    setSchools((prevSchools) =>
+      prevSchools.map((school) => {
+        if (school._id === schoolId) {
+          const updatedRatings = [...school.ratings, newReview];
+          const averageStars =
+            updatedRatings.length > 0
+              ? (
+                  updatedRatings.reduce((sum, rating) => sum + rating.rating, 0) /
+                  updatedRatings.length
+                ).toFixed(1)
+              : 0;
+          return { ...school, ratings: updatedRatings, averageStars: parseFloat(averageStars) };
+        }
+        return school;
+      })
+    );
   };
 
   const moveToFavorites = (schoolId) => {
-    const school = schools.find(s => s._id === schoolId);
+    const school = schools.find((s) => s._id === schoolId);
     setFavorites([...favorites, school]);
-    setSchools(schools.filter(s => s._id !== schoolId));
+    setSchools(schools.filter((s) => s._id !== schoolId));
   };
 
   const moveToSchools = (schoolId) => {
-    const school = favorites.find(s => s._id === schoolId);
+    const school = favorites.find((s) => s._id === schoolId);
     setSchools([...schools, school]);
-    setFavorites(favorites.filter(s => s._id !== schoolId));
+    setFavorites(favorites.filter((s) => s._id !== schoolId));
   };
 
-  const filteredSchools = schools.filter(school =>
-    school.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ).filter(school => {
-    if (!filterField || !filterCondition || !filterValue) return true;
-    const value = parseFloat(filterValue);
-    const getAverage = (field) => school.ratings.length > 0 ? school.ratings.reduce((sum, r) => sum + r[field], 0) / school.ratings.length : 0;
+  const filteredSchools = schools
+    .filter((school) => school.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((school) => {
+      if (!filterField || !filterCondition || !filterValue) return true;
+      const value = parseFloat(filterValue);
+      const getAverage = (field) =>
+        school.ratings.length > 0
+          ? school.ratings.reduce((sum, r) => sum + r[field], 0) / school.ratings.length
+          : 0;
 
-    if (filterField === 'location') {
-      return filterCondition === 'greater' ? getAverage('location') > value : getAverage('location') < value;
-    } else if (filterField === 'research') {
-      return filterCondition === 'greater' ? getAverage('research') > value : getAverage('research') < value;
-    } else if (filterField === 'socialLife') {
-      return filterCondition === 'greater' ? getAverage('socialLife') > value : getAverage('socialLife') < value;
-    } else if (filterField === 'academicSupport') {
-      return filterCondition === 'greater' ? getAverage('academicSupport') > value : getAverage('academicSupport') < value;
-    } else if (filterField === 'classSize') {
-      return filterCondition === 'greater' ? getAverage('classSize') > value : getAverage('classSize') < value;
-    }
-    return true;
-  });
+      if (filterField === 'location') {
+        return filterCondition === 'greater'
+          ? getAverage('location') > value
+          : getAverage('location') < value;
+      } else if (filterField === 'research') {
+        return filterCondition === 'greater'
+          ? getAverage('research') > value
+          : getAverage('research') < value;
+      } else if (filterField === 'socialLife') {
+        return filterCondition === 'greater'
+          ? getAverage('socialLife') > value
+          : getAverage('socialLife') < value;
+      } else if (filterField === 'academicSupport') {
+        return filterCondition === 'greater'
+          ? getAverage('academicSupport') > value
+          : getAverage('academicSupport') < value;
+      } else if (filterField === 'classSize') {
+        return filterCondition === 'greater'
+          ? getAverage('classSize') > value
+          : getAverage('classSize') < value;
+      }
+      return true;
+    });
 
   const sortedSchools = filteredSchools.sort((a, b) => {
     if (sortOption === 'name') {
@@ -133,6 +169,8 @@ const App = () => {
   const handleLogout = () => {
     setToken('');
   };
+
+  const allReviews = schools.flatMap(school => school.ratings || []);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -151,9 +189,11 @@ const App = () => {
               <Button variant="secondary" onClick={() => setShowLoginModal(true)}>Login</Button>
             </>
           ) : (
-            <Button variant="danger" onClick={handleLogout}>Logout</Button>
+            <>
+              <Button variant="secondary" onClick={() => setShowChatRoomModal(true)}>Chat Room</Button>
+              <Button variant="danger" onClick={handleLogout}>Logout</Button>
+            </>
           )}
-
         </nav>
         <Favorites favorites={favorites} moveToSchools={moveToSchools} />
         <div className="row mb-4">
@@ -210,12 +250,22 @@ const App = () => {
           ))}
         </div>
         <SchoolMap schools={schools} /> 
+        <Button variant="info" onClick={() => setShowReviews(!showReviews)}>
+          {showReviews ? 'Hide All Reviews' : 'Show All Reviews'}
+        </Button>
+        {showReviews && <Reviews reviews={allReviews} />} {/* Conditionally render Reviews component */}
         <AddSchoolModal show={showAddSchoolModal} handleClose={() => setShowAddSchoolModal(false)} addSchool={addSchool} token={token} />
         <RegisterModal show={showRegisterModal} handleClose={() => setShowRegisterModal(false)} />
         <LoginModal show={showLoginModal} handleClose={() => setShowLoginModal(false)} setToken={setToken} />
         <QuestionModal show={showQuestionModal} handleClose={() => setShowQuestionModal(false)} /> {/* Add QuestionModal */}
-
+        <ChatRoomModal 
+          show={showChatRoomModal} 
+          handleClose={() => setShowChatRoomModal(false)} 
+          schools={schools} 
+          socket={socket} 
+        /> {}
         <Routes>
+          {}
         </Routes>
       </div>
     </DndProvider>

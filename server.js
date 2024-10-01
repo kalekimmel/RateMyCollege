@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
+
 
 const app = express();
 
@@ -86,6 +88,31 @@ const schoolSchema = new mongoose.Schema({
 
 const School = mongoose.model('School', schoolSchema);
 const Question = mongoose.model('Question', questionSchema);
+
+
+app.post('/api/sentiment', async (req, res) => {
+    const { reviewsText } = req.body;
+
+    try {
+        const response = await axios.post('https://api.openai.com/v1/completions', {
+            model: 'text-davinci-003',
+            prompt: `Analyze the following reviews and summarize the main themes:\n\n${reviewsText}\n\nSummary:`,
+            max_tokens: 150,
+            n: 1,
+            temperature: 0.7,
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, // Use .env variable for the API key
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json({ summary: response.data.choices[0].text.trim() });
+    } catch (error) {
+        console.error('Error analyzing reviews:', error);
+        res.status(500).json({ error: 'Error generating summary.' });
+    }
+});
 
 // User registration
 app.post('/register', async (req, res) => {

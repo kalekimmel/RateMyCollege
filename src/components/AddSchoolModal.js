@@ -35,7 +35,7 @@ const AddSchoolModal = ({ show, handleClose, addSchool, token }) => {
                 website: '',
                 price: ''
             });
-            handleClose(); // Close the modal after successful submission
+            handleClose(); 
         } catch (error) {
             console.error('There was an error adding the school!', error);
         }
